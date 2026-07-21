@@ -28,7 +28,12 @@ export const createRequest = async (req: AuthRequest, res: Response) => {
     });
 
     const savedRequest = await newRequest.save();
-    return res.status(201).json(savedRequest);
+
+    return res.status(201).json({
+      message: "Request created successfully",
+      request: savedRequest,
+      requestNumber: savedRequest._id
+    });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to create request', details: (error as Error).message });
   }
@@ -36,10 +41,19 @@ export const createRequest = async (req: AuthRequest, res: Response) => {
 
 export const getRequests = async (req: AuthRequest, res: Response) => {
   try {
-    const requests = await ServiceRequest.find()
-      .populate('createdBy', 'name email')
-      .populate('assignedTo', 'name email')
-      .sort({ createdAt: -1 });
+    let requests;
+
+    if (req.user?.role === 'ADMIN') {
+      requests = await ServiceRequest.find()
+        .populate('createdBy', 'name email')
+        .populate('assignedTo', 'name email')
+        .sort({ createdAt: -1 });
+    } else {
+      requests = await ServiceRequest.find({ createdBy: req.user?.id })
+        .populate('createdBy', 'name email')
+        .populate('assignedTo', 'name email')
+        .sort({ createdAt: -1 });
+    }
 
     return res.status(200).json(requests);
   } catch (error) {
@@ -57,7 +71,17 @@ export const getRequestById = async (req: AuthRequest, res: Response) => {
       .populate('statusHistory.changedBy', 'name email');
 
     if (!request) {
-      return res.status(404).json({ error: 'Request not found' });
+      return res.status(404).json({
+        error: 'Request not found',
+      });
+    }
+    if (
+      req.user?.role !== 'ADMIN' &&
+      request.createdBy._id.toString() !== req.user?.id
+    ) {
+      return res.status(403).json({
+        error: 'Unauthorized',
+      });
     }
 
     return res.status(200).json(request);
@@ -77,6 +101,14 @@ export const updateRequestStatus = async (req: AuthRequest, res: Response) => {
     }
 
     request.status = status;
+
+    request.statusHistory.push({
+      status,
+      changedBy: new mongoose.Types.ObjectId(req.user?.id),
+      comment: 'Status updated',
+      changedAt: new Date(),
+    });
+
     await request.save();
     return res.status(200).json(request);
   } catch (error) {
@@ -105,8 +137,19 @@ export const cancelRequest = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     const request = await ServiceRequest.findById(id);
+
     if (!request) {
-      return res.status(404).json({ error: 'Request not found' });
+      return res.status(404).json({
+        error: 'Request not found',
+      });
+    }
+    if (
+      req.user?.role !== 'ADMIN' &&
+      request.createdBy.toString() !== req.user?.id
+    ) {
+      return res.status(403).json({
+        error: 'Unauthorized',
+      });
     }
 
     request.status = 'CANCELLED';
