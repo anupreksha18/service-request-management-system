@@ -37,7 +37,7 @@ export const analyzeRequest = async (req: Request, res: Response) => {
       return res.status(200).json({
         summary: 'General support inquiry.',
         suggestedCategory: 'OTHER',
-        suggestedPriority: 'CRITICAL',
+        suggestedPriority: 'URGENT',
         reason: 'General inquiry with no specific network, hardware, or access flags.',
       });
     }

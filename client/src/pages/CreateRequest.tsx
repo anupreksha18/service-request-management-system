@@ -5,7 +5,7 @@ import { AlertCircle, CheckCircle, FileText, Send, ArrowLeft, Sparkles, RefreshC
 
 export const CreateRequest: React.FC = () => {
   const navigate = useNavigate();
-  
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('OTHER');
@@ -26,30 +26,32 @@ export const CreateRequest: React.FC = () => {
       setError('Please provide both Title and Description before requesting AI analysis.');
       return;
     }
-    
+
     setError(null);
     setLoadingAI(true);
 
     try {
-      const response = await api.post('/ai/analyze', { title, description });
+      const response = await api.post('/ai/analyze-request', { title, description });
 
       const {
-        aiSummary: fetchedSummary,
-        aiSuggestedCategory: fetchedCategory,
-        aiSuggestedPriority: fetchedPriority,
-        aiReason: fetchedReason
+        summary: fetchedSummary,
+        suggestedCategory: fetchedCategory,
+        suggestedPriority: fetchedPriority,
+        reason: fetchedReason,
       } = response.data;
 
       setAiSummary(fetchedSummary || 'No summary returned');
       setAiSuggestedCategory(fetchedCategory || 'OTHER');
       setAiSuggestedPriority(fetchedPriority || 'MEDIUM');
       setAiReason(fetchedReason || 'No reasoning provided');
-      
+
       setCategory(fetchedCategory || 'OTHER');
       setPriority(fetchedPriority || 'MEDIUM');
-      setLoadingAI(false);
+
     } catch (err: any) {
       setError(`AI analysis failed: ${err.response?.data?.error || err.message}`);
+    } finally {
+      setLoadingAI(false);
     }
   };
 
@@ -70,8 +72,8 @@ export const CreateRequest: React.FC = () => {
         aiSuggestedPriority,
       });
 
-      setSuccess(`Request created successfully! Reference: ${response.data.requestNumber}`);
-      
+      setSuccess("Request created successfully!");
+
       setTitle('');
       setDescription('');
       setCategory('OTHER');
@@ -197,6 +199,7 @@ export const CreateRequest: React.FC = () => {
               <button
                 type="button"
                 onClick={handleAIAnalyze}
+                disabled={loading || loadingAI}
                 className="w-full flex justify-center items-center space-x-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 text-white text-xs font-semibold py-2 px-3 rounded-lg shadow-sm hover:from-brand-700 hover:to-indigo-700 transition"
               >
                 {loadingAI ? (
