@@ -32,7 +32,7 @@ export const login = async (req: Request, res: Response) => {
     );
 
     return res.status(200).json({
-      accessToken: token,
+       token,
       user: {
         id: user._id,
         name: user.name,
@@ -47,13 +47,25 @@ export const login = async (req: Request, res: Response) => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
+    
+    const { name, email, password } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
 
+    if (existingUser) {
+      return res.status(409).json({
+        error: 'User already exists',
+      });
+    }
+
+
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       name,
       email,
-      passwordHash: password,
-      role: role || 'USER',
+      passwordHash: hashedPassword,
+      role:'USER',
     });
 
     await newUser.save();
@@ -65,7 +77,7 @@ export const register = async (req: Request, res: Response) => {
     );
 
     return res.status(201).json({
-      accessToken: token,
+      token,
       user: {
         id: newUser._id,
         name: newUser.name,
