@@ -12,14 +12,13 @@ export const AdminDashboard: React.FC = () => {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [stats, setStats] = useState({
-    total: 35,
-    open: 18,
-    inProgress: 10,
-    resolved: 5,
-    cancelled: 2
-  });
+  const stats = {
+  total: requests.length,
+  open: requests.filter(r => r.status === 'OPEN').length,
+  inProgress: requests.filter(r => r.status === 'IN_PROGRESS').length,
+  resolved: requests.filter(r => r.status === 'RESOLVED').length,
+  cancelled: requests.filter(r => r.status === 'CANCELLED').length,
+};
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -28,7 +27,7 @@ export const AdminDashboard: React.FC = () => {
       const res = await api.get('/requests');
       setRequests(res.data);
     } catch (err: any) {
-      setError('Failed to retrieve service requests for admin dashboard.');
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -40,7 +39,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      await api.put(`/requests/${id}/status`, { status: newStatus });
+      await api.patch(`/requests/${id}/status`, { status: newStatus });
       alert('Status updated successfully!');
       fetchRequests();
     } catch (err: any) {
@@ -76,7 +75,7 @@ export const AdminDashboard: React.FC = () => {
           <p className="text-2xl font-bold text-slate-900 mt-1">{stats.total}</p>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
-          <span class="text-xs font-semibold text-blue-500 uppercase">Open</span>
+          <span className="text-xs font-semibold text-blue-500 uppercase">Open</span>
           <p className="text-2xl font-bold text-blue-600 mt-1">{stats.open}</p>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
@@ -155,8 +154,8 @@ export const AdminDashboard: React.FC = () => {
                         className="bg-slate-50 border border-slate-300 text-slate-900 text-xs rounded-lg focus:ring-brand-500 focus:border-brand-500 block p-1"
                       >
                         <option value="">Unassigned</option>
-                        <option value="60d5ec49867c2e36f0b48c1a">Admin User (admin@example.com)</option>
-                        <option value="60d5ec49867c2e36f0b48c1b">Backup Admin</option>
+                        {/* <option value="60d5ec49867c2e36f0b48c1a">Admin User (admin@example.com)</option>
+                        <option value="60d5ec49867c2e36f0b48c1b">Backup Admin</option> */}
                       </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
