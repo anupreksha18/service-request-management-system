@@ -86,7 +86,7 @@ export const Navbar: React.FC = () => {
 
           <div className="flex items-center md:hidden">
             <button
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => setMobileMenuOpen(((prev) => !prev))}
               className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
