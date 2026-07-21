@@ -27,7 +27,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setToken(storedToken);
         } catch (err) {
           console.error('Failed to restore session:', err);
+          localStorage.removeItem('token');
+          localStorage.removeItem('token');
+
           setToken(null);
+          setUser(null);
+          
         }
       }
       setLoading(false);
@@ -37,14 +42,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = (newToken: string, newUser: User) => {
-    localStorage.setItem('user_session_token', newToken);
+    localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(newUser);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('token');
     setToken(null);
+    setUser(null);
   };
 
   return (
