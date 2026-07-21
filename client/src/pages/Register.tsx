@@ -8,8 +8,8 @@ export const Register: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('USER');
-  
+
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,8 +21,10 @@ export const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/register', { name, email, password, role });
-      setSuccess('Account registered successfully! You can now log in.');
+      await api.post('/auth/register', { name, email, password });
+      setSuccess('Account registered successfully! Redirecting to login...');
+      setLoading(false);
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err: any) {
       setError(err.response?.data?.details || err.response?.data?.error || 'Registration failed');
       setLoading(false);
@@ -119,20 +121,7 @@ export const Register: React.FC = () => {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-slate-700 font-semibold mb-1">
-                Register As (Role)
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-lg"
-              >
-                <option value="USER">User (Standard)</option>
-                <option value="ADMIN">Admin (Privileged)</option>
-              </select>
-            </div>
+
           </div>
 
           <div>
