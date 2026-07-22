@@ -10,8 +10,9 @@ export const login = async (req: Request, res: Response) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Please provide email and password' });
     }
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email:normalizedEmail });
     if (!user) {
       return res.status(404).json({ error: 'User does not exist' });
     }
@@ -32,7 +33,7 @@ export const login = async (req: Request, res: Response) => {
     );
 
     return res.status(200).json({
-       token,
+      token,
       user: {
         id: user._id,
         name: user.name,
@@ -47,9 +48,23 @@ export const login = async (req: Request, res: Response) => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    
+
     const { name, email, password } = req.body;
-    
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        error: 'Please provide name, email and password',
+      });
+    }
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        error:
+          'Password must be at least 8 characters and contain an uppercase letter, a lowercase letter, a number, and a special character.',
+      });
+    }
     // Check if user already exists
     const existingUser = await User.findOne({ email });
 
@@ -65,7 +80,7 @@ export const register = async (req: Request, res: Response) => {
       name,
       email,
       passwordHash: hashedPassword,
-      role:'USER',
+      role: 'USER',
     });
 
     await newUser.save();
