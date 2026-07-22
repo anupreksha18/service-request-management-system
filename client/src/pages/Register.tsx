@@ -18,8 +18,17 @@ export const Register: React.FC = () => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    setLoading(true);
+      const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!])[A-Za-z\d@#$%^&*!]{8,}$/;
 
+  if (!passwordRegex.test(password)) {
+    setError(
+      "Password must be at least 8 characters and contain an uppercase letter, a lowercase letter, a number, and a special character."
+    );
+    return;
+  }
+
+  setLoading(true);
     try {
       await api.post('/auth/register', { name, email, password });
       setSuccess('Account registered successfully! Redirecting to login...');
