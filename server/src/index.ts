@@ -14,7 +14,9 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000',
+  'https://service-request-management-system-c.vercel.app',
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
