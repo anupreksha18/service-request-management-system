@@ -22,7 +22,10 @@ const corsOptions = {
   credentials: true,
 };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors());
+
+console.log("CORS TEST VERSION");
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
