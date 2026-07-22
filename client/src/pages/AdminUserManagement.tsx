@@ -1,12 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../api/api';
 import { ShieldAlert, Users, Trash2 } from 'lucide-react';
 
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: 'ADMIN' | 'USER';
+  isActive: boolean;
+}
+
 export const AdminUserManagement: React.FC = () => {
-  const [users] = useState([
-    { id: '1', name: 'Regular User', email: 'user@example.com', role: 'USER', isActive: true },
-    { id: '2', name: 'Admin User', email: 'admin@example.com', role: 'ADMIN', isActive: true },
-    { id: '3', name: 'Deactivated Tech', email: 'deactivated@example.com', role: 'USER', isActive: false },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.get('/users'); // ← real DB call, hits your backend route
+      setUsers(res.data);
+    } catch (err: any) {
+      setError('Failed to load users. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -44,7 +69,7 @@ export const AdminUserManagement: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-slate-50/50 transition">
+                <tr key={u._id} className="hover:bg-slate-50/50 transition">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">{u.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{u.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">

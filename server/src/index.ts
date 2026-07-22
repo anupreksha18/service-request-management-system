@@ -5,6 +5,7 @@ import { connectDB } from './config/db';
 import authRoutes from './routes/authRoutes';
 import requestRoutes from './routes/requestRoutes';
 import aiRoutes from './routes/aiRoutes';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Service is healthy' });
