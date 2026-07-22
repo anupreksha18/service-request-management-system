@@ -18,38 +18,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      if (storedToken) {
-        try {
-          const res = await api.get('/auth/me');
-          setUser(res.data.user);
-          setToken(storedToken);
-        } catch (err) {
-          console.error('Failed to restore session:', err);
-          localStorage.removeItem('token');
-          localStorage.removeItem('token');
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
 
-          setToken(null);
-          setUser(null);
-          
-        }
+    if (storedToken) {
+      setToken(storedToken);
+
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
       }
-      setLoading(false);
-    };
+    }
 
-    initAuth();
+    setLoading(false);
   }, []);
 
   const login = (newToken: string, newUser: User) => {
     localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+
     setToken(newToken);
     setUser(newUser);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
     setToken(null);
     setUser(null);
   };
