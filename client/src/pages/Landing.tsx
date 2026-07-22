@@ -1,8 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { Wrench, Shield, Zap, Sparkles, ArrowRight } from 'lucide-react';
 
 export const Landing: React.FC = () => {
+  const { user, loading } = useAuth();
+const navigate = useNavigate();
+
+useEffect(() => {
+  if (loading) return;
+
+  if (user?.role === 'ADMIN') {
+    navigate('/admin');
+  } else if (user) {
+    navigate('/dashboard');
+  }
+}, [user, loading, navigate]);
   return (
     <div className="bg-slate-50 min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center space-y-8">
